@@ -1,5 +1,13 @@
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import NoAlertPresentException
+from selenium.common.exceptions import TimeoutException
+
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+from .locators import BasePageLocators
+from .locators import BasketPageLocators
+
 import math
 
 
@@ -9,9 +17,31 @@ class BasePage():
         self.url = url
         self.browser.implicitly_wait(timeout)
 
+    # открывает ссылку в браузере
     def open(self):
         self.browser.get(self.url)
 
+    # переход на страницу корзины
+    def go_to_basket_page(self):
+        link = self.browser.find_element(*BasketPageLocators.BASKET_LINK)
+        link.click()
+
+    # переход на страницу авторизации
+    def go_to_login_page(self):
+        link = self.browser.find_element(*BasePageLocators.LOGIN_LINK)
+        link.click()
+
+    # проверяет, что элемент присутствует на странице и исчезает со временем или в результате действий пользователя
+    def is_disappeared(self, how, what, timeout=4):
+        try:
+            WebDriverWait(self.browser, timeout, 1, TimeoutException).\
+                until_not(EC.presence_of_element_located((how, what)))
+        except TimeoutException:
+            return False
+
+        return True
+
+    # проверяет, что элемент присутствует на странице
     def is_element_present(self, how, what):
         try:
             self.browser.find_element(how, what)
@@ -19,6 +49,27 @@ class BasePage():
             return False
         return True
 
+    # проверяет, что элемент не появляется на странице в течение заданного времени
+    def is_not_element_present(self, how, what, timeout=4):
+        try:
+            WebDriverWait(self.browser, timeout).until(
+                EC.presence_of_element_located((how, what)))
+        except TimeoutException:
+            return True
+
+        return False
+
+    # проверяет, что на странице есть ссылка на корзину
+    def should_be_basket_link(self):
+        assert self.is_element_present(
+            *BasketPageLocators.BASKET_LINK), "Basket link is not presented"
+
+    # проверяет, что на странице есть ссылка на страницу авторизации
+    def should_be_login_link(self):
+        assert self.is_element_present(
+            *BasePageLocators.LOGIN_LINK), "Login link is not presented"
+
+    # функция для расчета математической формулы
     def solve_quiz_and_get_code(self):
         alert = self.browser.switch_to.alert
         x = alert.text.split(" ")[2]

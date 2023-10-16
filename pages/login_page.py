@@ -9,7 +9,7 @@ class LoginPage(BasePage):
         self.should_be_register_form()
 
     def should_be_login_url(self):
-        # реализуйте проверку на корректный url адрес
+        # проверка на корректный url адрес страницы авторизации
         assert "login" in self.browser.current_url, "Login url not found"
 
     def should_be_login_form(self):
