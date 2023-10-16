@@ -59,6 +59,10 @@ class BasePage():
 
         return False
 
+    def should_be_authorized_user(self):
+        assert self.is_element_present(*BasePageLocators.USER_ICON), "User icon is not presented," \
+            " probably unauthorised user"
+
     # проверяет, что на странице есть ссылка на корзину
     def should_be_basket_link(self):
         assert self.is_element_present(

@@ -1,4 +1,5 @@
 import pytest
+import time
 from pages.product_page import ProductPage
 from pages.login_page import LoginPage
 from pages.basket_page import BasketPage
@@ -40,23 +41,25 @@ def test_guest_can_go_to_login_page_from_product_page(browser):
 # проверяет, что пользователь может добавить товар в корзину
 
 
-# @pytest.mark.parametrize('number', ["0", "1", "2", "3", "4", "5", "6", pytest.param("7", marks=pytest.mark.xfail), "8", "9"])
-# def test_guest_can_add_product_to_basket(browser, number):
-#     url = f"http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer{number}"
-#     page = ProductPage(browser, url)
-#     page.open()
-#     page.should_be_basket_button()
-#     page.add_product_to_basket()
-#     page.solve_quiz_and_get_code()
+@pytest.mark.skip
+@pytest.mark.parametrize('number', ["0", "1", "2", "3", "4", "5", "6", pytest.param("7", marks=pytest.mark.xfail), "8", "9"])
+def test_guest_can_add_product_to_basket(browser, number):
+    url = f"http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer{number}"
+    page = ProductPage(browser, url)
+    page.open()
+    page.should_be_basket_button()
+    page.add_product_to_basket()
+    page.solve_quiz_and_get_code()
 
-#     page.should_be_book_name()
-#     page.should_be_book_price()
+    page.should_be_book_name()
+    page.should_be_book_price()
 
-#     page.should_be_message_with_book_name()
-#     page.should_be_message_with_price()
+    page.should_be_message_with_book_name()
+    page.should_be_message_with_price()
 
-#     page.compares_product_name_and_message()
-#     page.compares_product_price_and_cart_price()
+    page.compares_product_name_and_message()
+    page.compares_product_price_and_cart_price()
+
 
 @pytest.mark.xfail
 # проверяет, что пользователь не видит сообщения об успешном добавлении товара после его добавления в корзину
@@ -86,3 +89,38 @@ def test_message_disappeared_after_adding_product_to_basket(browser):
     page.open()
     page.add_product_to_basket()
     page.should_be_success_message_is_disappeared()
+
+
+@pytest.mark.user
+class TestUserAddToBasketFromProductPage():
+    @pytest.fixture(scope="function", autouse=True)
+    def setup(self, browser):
+        url = "https://selenium1py.pythonanywhere.com/ru/accounts/login/"
+        page = LoginPage(browser, url)
+        page.open()
+        email = str(time.time()) + "@fakemail.org"
+        password = "pwo45kd$89@"
+        page.register_new_user(email, password)
+        page.should_be_authorized_user()
+
+    def test_user_cant_see_success_message(self, browser):
+        url = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/"
+        page = ProductPage(browser, url)
+        page.open()
+        page.should_not_be_success_message()
+
+    def test_user_can_add_product_to_basket(self, browser):
+        url = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/"
+        page = ProductPage(browser, url)
+        page.open()
+        page.should_be_basket_button()
+        page.add_product_to_basket()
+
+        page.should_be_book_name()
+        page.should_be_book_price()
+
+        page.should_be_message_with_book_name()
+        page.should_be_message_with_price()
+
+        page.compares_product_name_and_message()
+        page.compares_product_price_and_cart_price()
