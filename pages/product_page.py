@@ -50,10 +50,13 @@ class ProductPage(BasePage):
         assert self.is_element_present(
             *ProductPageLocators.PRICE_MESSAGE), "Message with price not found"
 
+    # Проверяет отсутствие сообщения об успешном добавлении книги в корзину
     def should_not_be_success_message(self):
         assert self.is_not_element_present(*ProductPageLocators.SUCCESS_MESSAGE), \
             "Success message is presented, but should not be"
 
+    # Проверяет, что сообщение об успешном добавлении книги в корзину
+    # со временем пропадает со страницы
     def should_be_success_message_is_disappeared(self):
         assert self.is_disappeared(*ProductPageLocators.SUCCESS_MESSAGE), \
             "Success message is not disappeared, but should be"
